@@ -1408,26 +1408,6 @@
       tick();
       setInterval(tick, 1000);
 
-      $("addCal").addEventListener("click", () => {
-        const ics = [
-          "BEGIN:VCALENDAR",
-          "VERSION:2.0",
-          "BEGIN:VEVENT",
-          "DTSTART:20261112T180000",
-          "DTEND:20261112T235900",
-          "SUMMARY:Ahmed & Aalaa's Wedding",
-          "LOCATION:7 Sky Hall",
-          "END:VEVENT",
-          "END:VCALENDAR",
-        ].join("\r\n");
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(
-          new Blob([ics], { type: "text/calendar" }),
-        );
-        a.download = "wedding.ics";
-        a.click();
-      });
-
       /* ============ GUEST MESSAGES — SETUP ============
    Choose ONE way to receive messages (fill in what you use):
    1) EMAIL  → create a free key at web3forms.com (enter your email) and paste it in accessKey
