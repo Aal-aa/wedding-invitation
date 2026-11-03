@@ -1028,6 +1028,40 @@
       .title.t2 {
         margin-top: 6px;
       }
+      .music {
+        position: fixed;
+        left: max(14px, env(safe-area-inset-left));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        z-index: 40;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1.5px solid var(--rose);
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--rose-d);
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(179, 86, 108, 0.25);
+        transition:
+          transform 0.25s ease,
+          opacity 0.25s ease;
+      }
+      .music:hover {
+        transform: scale(1.08);
+      }
+      .music.off {
+        opacity: 0.55;
+      }
+      .music.off::after {
+        content: "";
+        position: absolute;
+        left: 9px;
+        right: 9px;
+        top: 50%;
+        height: 2px;
+        background: var(--rose-d);
+        transform: rotate(-45deg);
+      }
       @keyframes pop {
         from {
           opacity: 0;
@@ -1115,7 +1149,6 @@
                 href="https://www.google.com/maps/search/?api=1&query=7+Sky+Hall"
                 >Open in Google Maps</a
               >
-          
             </div>
             <div class="foot rv">We can’t wait to celebrate with you</div>
           </div>
@@ -1193,6 +1226,17 @@
         <div class="exclusive">This invitation is<br />exclusive for you</div>
       </div>
     </div>
+    <audio id="bgm" src="ليالي (mp3cut.net).mp3" preload="auto"></audio>
+
+    <button
+      class="music"
+      id="musicBtn"
+      type="button"
+      aria-label="Toggle music"
+      hidden
+    >
+      ♪
+    </button>
 
     <script>
       const $ = (id) => document.getElementById(id);
@@ -1258,19 +1302,57 @@
       });
 
       /* ---- smooth open ---- */
+      const bgm = $("bgm"),
+        musicBtn = $("musicBtn");
+      bgm.volume = 0;
+
+      function fadeTo(target, ms) {
+        const start = bgm.volume,
+          t0 = performance.now();
+        (function step(t) {
+          const k = Math.min(1, (t - t0) / ms);
+          bgm.volume = start + (target - start) * k;
+          if (k < 1) requestAnimationFrame(step);
+        })(t0);
+      }
+
+      musicBtn.addEventListener("click", () => {
+        if (bgm.paused) {
+          bgm.play();
+          fadeTo(0.6, 600);
+          musicBtn.classList.remove("off");
+        } else {
+          bgm.pause();
+          musicBtn.classList.add("off");
+        }
+      });
+
       $("seal").addEventListener("click", () => {
         if (opened) return;
         opened = true;
-        env.classList.add("open"); // seal lifts, flap rotates
-        setTimeout(() => env.classList.add("away"), 1900); // envelope zooms & fades
+        const MUSIC_DELAY = 2000;
+
+        bgm.volume = 0;
+        bgm
+          .play()
+          .then(() => {
+            setTimeout(() => {
+              bgm.currentTime = 0;
+              fadeTo(0.6, 2500);
+            }, MUSIC_DELAY);
+          })
+          .catch(() => musicBtn.classList.add("off"));
+
+        env.classList.add("open");
+        setTimeout(() => env.classList.add("away"), 1000);
         setTimeout(() => {
           invite.classList.add("go");
           pages[0].classList.add("in");
           dotBtns[0].classList.add("on");
-        }, 2300);
-        setTimeout(() => scene.classList.add("gone"), 3500);
+          musicBtn.hidden = false;
+        }, 1000);
+        setTimeout(() => scene.classList.add("gone"), 1500);
       });
-
       function rng(a) {
         return () => {
           a |= 0;
